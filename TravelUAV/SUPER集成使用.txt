@@ -1,0 +1,63 @@
+TravelUAV-SUPER集成系统使用说明
+==========================================
+
+系统已配置完成，按以下顺序启动：
+
+终端1 - AirSim（服务器本地，有显示器）
+  cd /mnt/data/TravelUAV/envs/closeloop_envs
+  ./ModularPark.sh -ResX=1280 -ResY=720 -windowed
+  等待30秒，看到无人机
+
+终端2 - SUPER规划器
+  conda deactivate
+  cd /mnt/data/airsim_super_integration/scripts
+  ./start_super_airsim.sh
+
+终端3 - AirSim桥接节点
+  conda deactivate
+  cd /mnt/data/airsim_super_integration/scripts
+  ./run_bridge.sh
+
+终端4 - Socket双向桥接（新增）⭐
+  conda deactivate
+  cd /mnt/data/airsim_super_integration/scripts
+  ./run_bidirectional_bridge.sh
+
+终端5 - 无人机起飞
+  conda deactivate
+  cd /mnt/data/airsim_super_integration/scripts
+  python3 arm_and_takeoff.py
+
+终端6 - 测试Socket通信（可选）
+  conda activate llama
+  cd /mnt/data/TravelUAV/scripts
+  python test_super_integration.py
+
+终端7 - 运行TravelUAV评估
+  conda activate llama
+  cd /mnt/data/TravelUAV
+  bash scripts/eval_xiugai.sh
+
+==========================================
+
+工作流程：
+  1. TravelUAV大模型输出目标点
+  2. Socket客户端发送给Socket桥接服务
+  3. 桥接服务转发到SUPER（ROS2）
+  4. SUPER规划路径并控制无人机飞行
+  5. 桥接服务返回状态给TravelUAV
+  6. TravelUAV继续下一步决策
+
+检查清单：
+  □ AirSim窗口显示无人机
+  □ SUPER无"No odom"错误
+  □ 桥接节点显示位置数据
+  □ Socket服务显示"等待TravelUAV连接"
+  □ TravelUAV能发送目标点
+
+故障排查：
+  - Socket连接失败 → 检查终端4是否运行
+  - SUPER无数据 → 检查终端3桥接节点
+  - 无人机不飞 → 检查是否已起飞（终端5）
+
+==========================================
